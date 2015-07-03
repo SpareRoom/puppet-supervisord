@@ -47,14 +47,7 @@ Note: Only Debian and RedHat families have an init script currently.
 
 ### HTTP servers
 
-As of version 3.0a3, Supervisor provides an HTTP server that can listen on
-a Unix socket, an inet socket, or both.  By default, this module enables
-the Unix socket HTTP server.  `supervisorctl` issues commands to the HTTP
-server, and it must be configured to talk to either the Unix socket or the
-inet socket.  If only one HTTP server is enabled, this module will configure
-`supervisorctl` to use that HTTP server.  If both HTTP servers are enabled,
-the Unix socket HTTP server will be used by default.  To use the inet socket
-instead, set `ctl_socket` to `inet` (its default is `unix`).
+As of version 3.0a3, Supervisor provides an HTTP server that can listen on a Unix socket, an inet socket, or both.  By default, this module enables the Unix socket HTTP server.  `supervisorctl` issues commands to the HTTP server, and it must be configured to talk to either the Unix socket or the inet socket.  If only one HTTP server is enabled, this module will configure `supervisorctl` to use that HTTP server.  If both HTTP servers are enabled, the Unix socket HTTP server will be used by default.  To use the inet socket instead, set `ctl_socket` to `inet` (its default is `unix`).
 
 #### Configure the Unix HTTP server
 
@@ -64,7 +57,6 @@ The Unix HTTP server is enabled by default.  Its parameters are:
 class { 'supervisord':
   unix_socket       => true,
   run_path          => '/var/run',
-
   unix_socket_mode  => '0700',
   unix_socket_owner => 'nobody',
   unix_socket_group => 'nobody',
@@ -85,8 +77,6 @@ chown=nobody:nobody
 [supervisorctl]
 serverurl=unix:///var/run/supervisor.sock
 ```
-
-Note: `unix_socket` and `inet_server` are mutually exclusive.
 
 #### Configure the Inet HTTP server
 
