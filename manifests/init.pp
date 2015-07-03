@@ -41,18 +41,16 @@ class supervisord(
   $unix_socket_mode     = $supervisord::params::unix_socket_mode,
   $unix_socket_owner    = $supervisord::params::unix_socket_owner,
   $unix_socket_group    = $supervisord::params::unix_socket_group,
+  $unix_auth            = $supervisord::params::unix_auth,
+  $unix_username        = $supervisord::params::unix_username,
+  $unix_password        = $supervisord::params::unix_password,
 
   $inet_server          = $supervisord::params::inet_server,
   $inet_server_hostname = $supervisord::params::inet_server_hostname,
   $inet_server_port     = $supervisord::params::inet_server_port,
-
-  $unix_auth            = false,
-  $unix_username        = undef,
-  $unix_password        = undef,
-
-  $inet_auth            = false,
-  $inet_username        = undef,
-  $inet_password        = undef,
+  $inet_auth            = $supervisord::params::inet_auth,
+  $inet_username        = $supervisord::params::inet_username,
+  $inet_password        = $supervisord::params::inet_password,
 
   $user                 = undef,
   $identifier           = undef,

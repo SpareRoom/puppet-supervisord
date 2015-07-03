@@ -45,6 +45,61 @@ You'll also likely need to adjust the `supervisord::service_name` to match that 
 
 Note: Only Debian and RedHat families have an init script currently.
 
+### Configure the Unix HTTP server
+
+The Unix HTTP server is enabled by default.  Its parameters are:
+
+```puppet
+class { 'supervisord':
+  unix_socket       => true,
+  run_path          => '/var/run',
+  unix_socket_file  => 'supervisor.sock',
+  unix_socket_mode  => '0700',
+  unix_socket_owner => 'nobody',
+  unix_socket_group => 'nobody',
+  unix_auth         => false,
+  unix_username     => undef,
+  unix_password     => undef,
+}
+```
+
+This results in the following config sections:
+
+```
+[unix_http_server]
+file=/var/run/supervisor.sock
+chmod=0700
+chown=nobody:nobody
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock
+```
+
+## Configure the Inet HTTP server
+
+The Inet HTTP server is disabled by default.  Its parameters are:
+
+```puppet
+class { 'supervisord':
+  inet_server       => false,
+  inet_server_hostname => '127.0.0.1',
+  inet_server_port     => '9001',
+  inet_auth            => false,
+  inet_username        => undef,
+  inet_password        => undef,
+}
+```
+
+This results in the following config sections:
+
+```
+[inet_http_server]
+port=127.0.0.1:9001
+
+[supervisorctl]
+serverurl=http://127.0.0.1:9001
+```
+
 ### Configure a program
 
 ```puppet
