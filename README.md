@@ -45,7 +45,18 @@ You'll also likely need to adjust the `supervisord::service_name` to match that 
 
 Note: Only Debian and RedHat families have an init script currently.
 
-### Configure the Unix HTTP server
+### HTTP servers
+
+As of version 3.0a3, Supervisor provides an HTTP server that can listen on
+a Unix socket, an inet socket, or both.  By default, this module enables
+the Unix socket HTTP server.  `supervisorctl` issues commands to the HTTP
+server, and it must be configured to talk to either the Unix socket or the
+inet socket.  If only one HTTP server is enabled, this module will configure
+`supervisorctl` to use that HTTP server.  If both HTTP servers are enabled,
+the Unix socket HTTP server will be used by default.  To use the inet socket
+instead, set `ctl_socket` to `inet` (its default is `unix`).
+
+#### Configure the Unix HTTP server
 
 The Unix HTTP server is enabled by default.  Its parameters are:
 
@@ -53,7 +64,7 @@ The Unix HTTP server is enabled by default.  Its parameters are:
 class { 'supervisord':
   unix_socket       => true,
   run_path          => '/var/run',
-  unix_socket_file  => 'supervisor.sock',
+
   unix_socket_mode  => '0700',
   unix_socket_owner => 'nobody',
   unix_socket_group => 'nobody',
@@ -75,13 +86,16 @@ chown=nobody:nobody
 serverurl=unix:///var/run/supervisor.sock
 ```
 
-## Configure the Inet HTTP server
+Note: `unix_socket` and `inet_server` are mutually exclusive.
+
+#### Configure the Inet HTTP server
 
 The Inet HTTP server is disabled by default.  Its parameters are:
 
 ```puppet
 class { 'supervisord':
-  inet_server       => false,
+  unix_socket          => false,
+  inet_server          => true,
   inet_server_hostname => '127.0.0.1',
   inet_server_port     => '9001',
   inet_auth            => false,

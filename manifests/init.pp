@@ -37,6 +37,8 @@ class supervisord(
   $config_dirs          = undef,
   $umask                = $supervisord::params::umask,
 
+  $ctl_socket           = $supervisord::params::ctl_socket,
+
   $unix_socket          = $supervisord::params::unix_socket,
   $unix_socket_file     = $supervisord::params::unix_socket_file,
   $unix_socket_mode     = $supervisord::params::unix_socket_mode,
@@ -72,7 +74,9 @@ class supervisord(
   validate_bool($install_pip)
   validate_bool($install_init)
   validate_bool($nodaemon)
+  validate_bool($unix_socket)
   validate_bool($unix_auth)
+  validate_bool($inet_server)
   validate_bool($inet_auth)
   validate_bool($strip_ansi)
   validate_bool($nocleanup)
@@ -92,11 +96,45 @@ class supervisord(
   validate_re($log_level, $log_levels, "invalid log_level: ${log_level}")
   validate_re($umask, '^0[0-7][0-7]$', "invalid umask: ${umask}.")
   validate_re($unix_socket_mode, '^[0-7][0-7][0-7][0-7]$', "invalid unix_socket_mode: ${unix_socket_mode}")
+  validate_re($ctl_socket, ['^unix$', '^inet$'], "invalid ctl_socket: ${ctl_socket}")
 
   if ! is_integer($logfile_backups) { fail("invalid logfile_backups: ${logfile_backups}.")}
   if ! is_integer($minfds) { fail("invalid minfds: ${minfds}.")}
   if ! is_integer($minprocs) { fail("invalid minprocs: ${minprocs}.")}
   if ! is_integer($inet_server_port) { fail("invalid inet_server_port: ${inet_server_port}.")}
+
+  if $unix_socket and $inet_server {
+    $use_ctl_socket = $ctl_socket
+  }
+  elsif $unix_socket {
+    $use_ctl_socket = 'unix'
+  }
+  elsif $inet_server {
+    $use_unix_socket = 'inet'
+  }
+
+  if $use_ctl_socket == 'unix' {
+    $ctl_serverurl = "unix://${supervisord::run_path}/${supervisord::unix_socket_file}"
+    $ctl_auth      = $supervisord::unix_auth
+    $ctl_username  = $supervisord::unix_username
+    $ctl_password  = $supervisord::unix_password
+  }
+  elsif $use_ctl_socket == 'inet' {
+    $ctl_serverurl = "http://${supervisord::inet_server_hostname}:${supervisord::inet_server_port}"
+    $ctl_auth      = $supervisord::inet_auth
+    $ctl_username  = $supervisord::inet_username
+    $ctl_password  = $supervisord::inet_password
+  }
+
+  if $unix_auth {
+    validte_string($unix_username)
+    validte_string($unix_password)
+  }
+
+  if $inet_auth {
+    validte_string($inet_username)
+    validte_string($inet_password)
+  }
 
   if $env_var {
     validate_hash($env_var)
